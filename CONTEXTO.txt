@@ -1,0 +1,79 @@
+SISTEMA MULTI-AGENTES PARA DESARROLLO DE SOFTWARE
+===============================================
+
+DESCRIPCIÓN
+-----------
+Este proyecto implementa un sistema multi-agentes para el desarrollo automatizado de software, utilizando la biblioteca Agno y el modelo de lenguaje Deepseek. El sistema simula una estructura empresarial donde diferentes agentes especializados colaboran para desarrollar software de manera eficiente.
+
+COMPONENTES PRINCIPALES
+----------------------
+1. Agente Coordinador (Project Manager)
+   - Analiza los proyectos y los divide en tareas específicas
+   - Asigna tareas a los programadores según sus habilidades
+   - Monitorea el progreso general del proyecto
+   - Gestiona la comunicación entre agentes
+
+2. Agentes Programadores
+   - Implementan las tareas asignadas
+   - Generan código siguiendo buenas prácticas
+   - Documentan el código en español
+   - Crean pruebas unitarias
+
+3. Agente QA
+   - Revisa la calidad del código
+   - Verifica la documentación
+   - Valida las pruebas unitarias
+   - Proporciona retroalimentación
+
+TECNOLOGÍAS
+-----------
+- Python 3.8+
+- Agno (Framework de agentes)
+- Deepseek (Modelo de lenguaje)
+- FastAPI (Para ejemplos de backend)
+- React (Para ejemplos de frontend)
+- PostgreSQL (Para ejemplos de base de datos)
+
+ESTRUCTURA DE ARCHIVOS
+---------------------
+empresa_multiagentes/
+├── agents/                 # Agentes del sistema
+├── config/                 # Configuración
+├── logs/                  # Archivos de registro
+├── .env.example          # Ejemplo de variables de entorno
+├── main.py               # Punto de entrada
+├── README.md             # Documentación
+└── requirements.txt      # Dependencias
+
+FLUJO DE TRABAJO
+---------------
+1. El usuario proporciona una descripción del proyecto
+2. El Coordinador analiza y divide el proyecto en tareas
+3. Los Programadores implementan las tareas asignadas
+4. QA revisa cada implementación
+5. El Coordinador monitorea y reporta el progreso
+
+CONSIDERACIONES IMPORTANTES
+-------------------------
+- Todo el código debe estar documentado en español
+- Se deben seguir las mejores prácticas de programación
+- Cada tarea debe incluir pruebas unitarias
+- El sistema debe ser escalable y mantenible
+- La comunicación entre agentes es asíncrona
+- Se debe mantener un registro detallado de todas las operaciones
+
+OBJETIVOS DEL PROYECTO
+---------------------
+1. Automatizar el desarrollo de software
+2. Mantener alta calidad en el código
+3. Reducir tiempos de desarrollo
+4. Asegurar consistencia en la documentación
+5. Facilitar el mantenimiento del código
+
+PRÓXIMOS PASOS
+-------------
+1. Implementar el sistema base
+2. Realizar pruebas con proyectos de ejemplo
+3. Ajustar y optimizar el comportamiento de los agentes
+4. Documentar casos de uso y mejores prácticas
+5. Expandir las capacidades según necesidades

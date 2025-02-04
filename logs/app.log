@@ -1,0 +1,192 @@
+2025-02-02 03:57:49.590 | INFO     | agents.qa_agent:__init__:39 - Agente QA inicializado
+2025-02-02 03:58:06.468 | INFO     | agents.qa_agent:__init__:39 - Agente QA inicializado
+2025-02-02 03:58:06.531 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 03:58:06.531 | INFO     | __main__:register_programmer:73 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 03:58:06.531 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 03:58:06.532 | INFO     | __main__:register_programmer:73 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 03:58:06.532 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 03:58:06.532 | INFO     | __main__:register_programmer:73 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 03:58:06.532 | INFO     | __main__:__init__:63 - Sistema Multi-Agentes inicializado
+2025-02-02 03:58:06.532 | INFO     | __main__:process_project:85 - Iniciando analisis del proyecto
+2025-02-02 03:59:18.485 | ERROR    | __main__:process_project:127 - Error al procesar proyecto: 'CoordinatorAgent' object has no attribute 'execute_tasks'
+2025-02-02 03:59:50.452 | INFO     | agents.qa_agent:__init__:39 - Agente QA inicializado
+2025-02-02 03:59:50.517 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 03:59:50.517 | INFO     | __main__:register_programmer:73 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 03:59:50.517 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 03:59:50.517 | INFO     | __main__:register_programmer:73 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 03:59:50.517 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 03:59:50.518 | INFO     | __main__:register_programmer:73 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 03:59:50.518 | INFO     | __main__:__init__:63 - Sistema Multi-Agentes inicializado
+2025-02-02 03:59:50.518 | INFO     | __main__:process_project:85 - Iniciando analisis del proyecto
+2025-02-02 04:00:40.457 | ERROR    | __main__:process_project:127 - Error al procesar proyecto: 'NoneType' object is not subscriptable
+2025-02-02 04:01:01.699 | INFO     | agents.qa_agent:__init__:39 - Agente QA inicializado
+2025-02-02 04:01:01.766 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 04:01:01.767 | INFO     | __main__:register_programmer:73 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 04:01:01.767 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 04:01:01.767 | INFO     | __main__:register_programmer:73 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 04:01:01.767 | INFO     | agents.coordinator_agent:register_programmer:51 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 04:01:01.768 | INFO     | __main__:register_programmer:73 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 04:01:01.768 | INFO     | __main__:__init__:63 - Sistema Multi-Agentes inicializado
+2025-02-02 04:01:01.768 | INFO     | __main__:process_project:85 - Iniciando analisis del proyecto
+2025-02-02 04:02:03.421 | ERROR    | __main__:process_project:127 - Error al procesar proyecto: Error al analizar proyecto con DeepSeek: Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-583ae***********************3ecf. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2025-02-02 18:54:10.421 | INFO     | agents.coordinator_agent:__init__:25 - Agente Coordinador inicializado
+2025-02-02 18:54:10.529 | INFO     | agents.qa_agent:__init__:39 - Agente QA inicializado
+2025-02-02 18:54:10.806 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 18:54:10.807 | INFO     | __main__:register_programmer:80 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 18:54:10.807 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 18:54:10.807 | INFO     | __main__:register_programmer:80 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 18:54:10.808 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 18:54:10.808 | INFO     | __main__:register_programmer:80 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 18:54:10.808 | INFO     | __main__:__init__:70 - Sistema Multi-Agentes inicializado
+2025-02-02 18:54:10.808 | INFO     | __main__:process_project:92 - Iniciando analisis del proyecto
+2025-02-02 18:54:31.815 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 1 asignada a programador prog1
+2025-02-02 18:54:31.816 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 2 asignada a programador prog1
+2025-02-02 18:54:31.816 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 3 asignada a programador prog1
+2025-02-02 18:54:31.817 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 4 asignada a programador prog1
+2025-02-02 18:54:31.817 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 5 asignada a programador prog1
+2025-02-02 18:54:31.817 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 6 asignada a programador prog1
+2025-02-02 18:54:31.817 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 7 asignada a programador prog1
+2025-02-02 18:54:31.818 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 8 asignada a programador prog1
+2025-02-02 18:54:31.818 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 9 asignada a programador prog1
+2025-02-02 18:54:31.818 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 10 asignada a programador prog1
+2025-02-02 18:54:31.819 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 11 asignada a programador prog1
+2025-02-02 18:54:31.819 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 12 asignada a programador prog1
+2025-02-02 18:54:31.819 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 13 asignada a programador prog1
+2025-02-02 19:00:42.645 | INFO     | agents.coordinator_agent:__init__:25 - Agente Coordinador inicializado
+2025-02-02 19:00:42.650 | INFO     | agents.qa_agent:__init__:39 - Agente QA inicializado
+2025-02-02 19:00:42.655 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 19:00:42.657 | INFO     | __main__:register_programmer:80 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 19:00:42.659 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 19:00:42.660 | INFO     | __main__:register_programmer:80 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 19:00:42.660 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 19:00:42.663 | INFO     | __main__:register_programmer:80 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 19:00:42.664 | INFO     | __main__:__init__:70 - Sistema Multi-Agentes inicializado
+2025-02-02 19:00:42.665 | INFO     | __main__:process_project:92 - Iniciando analisis del proyecto
+2025-02-02 19:01:00.039 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 1 asignada a programador prog1
+2025-02-02 19:01:00.039 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 2 asignada a programador prog1
+2025-02-02 19:01:00.040 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 3 asignada a programador prog1
+2025-02-02 19:01:00.040 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 4 asignada a programador prog1
+2025-02-02 19:01:00.040 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 5 asignada a programador prog1
+2025-02-02 19:01:00.041 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 6 asignada a programador prog1
+2025-02-02 19:01:00.041 | INFO     | agents.coordinator_agent:assign_tasks:214 - Tarea 7 asignada a programador prog1
+2025-02-02 19:12:37.711 | INFO     | agents.coordinator_agent:__init__:25 - Agente Coordinador inicializado
+2025-02-02 19:12:37.717 | INFO     | agents.qa_agent:__init__:20 - Agente QA inicializado
+2025-02-02 19:12:37.718 | INFO     | agents.qa_agent:__init__:20 - Agente QA inicializado
+2025-02-02 19:12:37.719 | INFO     | agents.qa_agent:__init__:20 - Agente QA inicializado
+2025-02-02 19:12:37.720 | INFO     | agents.qa_agent:__init__:20 - Agente QA inicializado
+2025-02-02 19:12:37.720 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 19:12:37.721 | INFO     | __main__:register_programmer:80 - Programador prog1 registrado con habilidades: ['python', 'web', 'database', 'sql', 'fastapi', 'jwt', 'websockets']
+2025-02-02 19:12:37.721 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 19:12:37.721 | INFO     | __main__:register_programmer:80 - Programador prog2 registrado con habilidades: ['python', 'ai', 'testing', 'pruebas unitarias']
+2025-02-02 19:12:37.722 | INFO     | agents.coordinator_agent:register_programmer:52 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 19:12:37.723 | INFO     | __main__:register_programmer:80 - Programador prog3 registrado con habilidades: ['javascript', 'frontend', 'ui', 'react', 'html', 'css', 'jwt']
+2025-02-02 19:12:37.723 | INFO     | __main__:__init__:70 - Sistema Multi-Agentes inicializado
+2025-02-02 19:12:37.724 | INFO     | __main__:process_project:92 - Iniciando analisis del proyecto
+2025-02-02 19:12:50.932 | INFO     | agents.coordinator_agent:assign_tasks:226 - Tarea 1 asignada a programador prog1
+2025-02-02 19:12:50.933 | INFO     | agents.coordinator_agent:assign_tasks:226 - Tarea 2 asignada a programador prog1
+2025-02-02 19:12:50.934 | INFO     | agents.coordinator_agent:assign_tasks:226 - Tarea 3 asignada a programador prog1
+2025-02-02 19:12:50.934 | INFO     | agents.coordinator_agent:assign_tasks:226 - Tarea 4 asignada a programador prog1
+2025-02-02 19:12:50.935 | INFO     | agents.coordinator_agent:assign_tasks:226 - Tarea 5 asignada a programador prog2
+2025-02-02 19:12:50.935 | INFO     | agents.coordinator_agent:assign_tasks:226 - Tarea 6 asignada a programador prog1
+2025-02-02 19:12:50.935 | INFO     | agents.coordinator_agent:assign_tasks:226 - Tarea 7 asignada a programador prog1
+2025-02-02 19:12:57.981 | ERROR    | agents.coordinator_agent:process_project:159 - Error al procesar solicitud de proyecto: 'coroutine' object is not subscriptable
+2025-02-02 19:12:57.986 | ERROR    | __main__:process_project:128 - Error procesando el proyecto: Error al procesar solicitud de proyecto: 'coroutine' object is not subscriptable
+2025-02-03 00:24:15 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 00:24:15 | INFO | Sistema iniciado
+2025-02-03 00:25:11 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, que sea ejecutable en windows
+2025-02-03 00:25:11 | ERROR | Error en el sistema: Error al crear plan: Error code: 403 - {'error': {'message': 'Project `proj_8H4UrckFuad9ccXFwshseCLT` does not have access to model `gpt-4`', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}
+2025-02-03 00:25:11 | INFO | Sistema finalizado
+2025-02-03 00:26:27 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 00:26:27 | INFO | Sistema iniciado
+2025-02-03 00:26:52 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, ejecutable en windows
+2025-02-03 00:27:07 | ERROR | Error en el sistema: Error al crear plan: object RunResponse can't be used in 'await' expression
+2025-02-03 00:27:07 | INFO | Sistema finalizado
+2025-02-03 00:27:54 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 00:27:54 | INFO | Sistema iniciado
+2025-02-03 00:27:59 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, ejecutable en windows
+2025-02-03 00:28:56 | ERROR | Error en el sistema: Error en la ejecución: `dumps_kwargs` keyword arguments are no longer supported.
+2025-02-03 00:28:56 | INFO | Sistema finalizado
+2025-02-03 00:29:21 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 00:29:21 | INFO | Sistema iniciado
+2025-02-03 00:29:24 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, ejecutable en windows
+2025-02-03 00:29:44 | ERROR | Error al procesar solicitud: Object of type datetime is not JSON serializable
+2025-02-03 00:30:05 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, ejecutable en windows
+2025-02-03 00:30:32 | ERROR | Error al procesar solicitud: Object of type datetime is not JSON serializable
+2025-02-03 00:31:40 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 00:31:40 | INFO | Sistema iniciado
+2025-02-03 00:32:04 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, ejecutable en windows
+2025-02-03 00:34:16 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 00:34:16 | INFO | Sistema iniciado
+2025-02-03 00:34:21 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, ejecutable en windows
+2025-02-03 00:47:48 | ERROR | Error al inicializar workflow: API key must be provided as an argument or in EXA_API_KEY environment variable
+2025-02-03 00:51:39 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 00:54:14 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 00:58:43 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 00:59:36 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 01:01:12 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 01:02:00 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 01:03:23 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 01:04:57 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 01:05:09 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 01:06:35 | ERROR | Error al inicializar workflow: No API key provided
+2025-02-03 01:09:42 | ERROR | Error al inicializar workflow: GitHub access token is required
+2025-02-03 01:16:10 | ERROR | Error al inicializar workflow: GitHub access token is required
+2025-02-03 01:16:33 | ERROR | Error al inicializar workflow: GitHub access token is required
+2025-02-03 01:17:50 | ERROR | Error al inicializar workflow: GithubTools.__init__() got an unexpected keyword argument 'github_token'
+2025-02-03 01:18:20 | ERROR | Error al inicializar workflow: GithubTools.__init__() got an unexpected keyword argument 'github_token'
+2025-02-03 01:20:15 | ERROR | Error al inicializar workflow: GithubTools.__init__() got an unexpected keyword argument 'token'
+2025-02-03 01:20:59 | ERROR | Error al inicializar workflow: GithubTools.__init__() got an unexpected keyword argument 'token'
+2025-02-03 01:21:22 | ERROR | Error al inicializar workflow: GithubTools.__init__() got an unexpected keyword argument 'show_progress'
+2025-02-03 01:21:42 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 01:21:42 | INFO | Sistema iniciado
+2025-02-03 01:22:30 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, el producto final lo quiero en forma de .exe para windows
+2025-02-03 01:24:32 | ERROR | Error al procesar solicitud: Error al crear plan: El plan generado no tiene el formato correcto
+2025-02-03 01:26:03 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 01:26:03 | INFO | Sistema iniciado
+2025-02-03 01:26:39 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, haz que el producto final sea un ejecutable .exe para windows
+2025-02-03 01:28:21 | ERROR | Error al procesar solicitud: Error al crear plan: Error al crear plan: El plan generado no es un JSON válido
+2025-02-03 01:29:11 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 01:29:11 | INFO | Sistema iniciado
+2025-02-03 01:29:18 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, el producto final lo quiero en forma de .exe para windows
+2025-02-03 01:32:49 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 01:32:49 | INFO | Sistema iniciado
+2025-02-03 01:32:51 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, haz que el producto final sea un ejecutable .exe para windows
+2025-02-03 01:32:51 | INFO | Plan creado exitosamente
+2025-02-03 01:32:51 | ERROR | Error en el resultado del plan: Error al crear plan: Error code: 403 - {'error': {'message': 'Project `proj_8H4UrckFuad9ccXFwshseCLT` does not have access to model `gpt-4`', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}
+2025-02-03 01:32:51 | ERROR | Error al procesar solicitud: Error al crear plan: Error al crear plan: Error code: 403 - {'error': {'message': 'Project `proj_8H4UrckFuad9ccXFwshseCLT` does not have access to model `gpt-4`', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}
+2025-02-03 01:37:22 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 01:37:22 | INFO | Sistema iniciado
+2025-02-03 01:37:24 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, el producto final lo quiero en forma de .exe para windows
+2025-02-03 01:38:42 | INFO | Plan creado exitosamente
+2025-02-03 01:38:42 | ERROR | Error en el resultado del plan: Error al crear plan: El plan generado no es un JSON válido
+2025-02-03 01:38:42 | ERROR | Error al procesar solicitud: Error al crear plan: Error al crear plan: El plan generado no es un JSON válido
+2025-02-03 01:40:36 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 01:40:36 | INFO | Sistema iniciado
+2025-02-03 01:47:34 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, haz que el producto final sea un ejecutable .exe para windows
+2025-02-03 01:47:40 | INFO | Plan creado exitosamente
+2025-02-03 01:47:40 | ERROR | Error en el resultado del plan: Error al crear plan: La respuesta del investigador no es un JSON válido
+2025-02-03 01:47:40 | ERROR | Error al procesar solicitud: Error al crear plan: Error al crear plan: La respuesta del investigador no es un JSON válido
+2025-02-03 01:48:58 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 01:48:58 | INFO | Sistema iniciado
+2025-02-03 01:49:01 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, el producto final lo quiero en forma de .exe para windows
+2025-02-03 01:49:39 | INFO | Plan creado exitosamente
+2025-02-03 02:07:38 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 02:07:38 | INFO | Sistema iniciado
+2025-02-03 02:08:12 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, haz que el producto final sea un ejecutable .exe para windows
+2025-02-03 02:08:41 | INFO | Plan creado exitosamente
+2025-02-03 02:16:31 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 02:16:31 | INFO | Sistema iniciado
+2025-02-03 02:16:39 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, haz que el producto final sea un ejecutable .exe para windows
+2025-02-03 02:17:11 | INFO | Plan creado exitosamente
+2025-02-03 02:17:11 | ERROR | Error en el resultado del plan: Error al crear plan: 'start_date'
+2025-02-03 02:17:11 | ERROR | Error al procesar solicitud: Error al crear plan: Error al crear plan: 'start_date'
+2025-02-03 02:18:19 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 02:18:19 | INFO | Sistema iniciado
+2025-02-03 02:18:24 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, el producto final lo quiero en forma de .exe para windows
+2025-02-03 02:20:27 | INFO | Plan creado exitosamente
+2025-02-03 02:20:27 | ERROR | Error al crear plan: Object of type datetime is not JSON serializable
+2025-02-03 02:20:27 | ERROR | Error al procesar solicitud: Error al crear plan: Object of type datetime is not JSON serializable
+2025-02-03 02:22:54 | INFO | Sistema Multi-Agentes inicializado con Agno
+2025-02-03 02:22:54 | INFO | Sistema iniciado
+2025-02-03 02:25:55 | INFO | Procesando solicitud: Crea la mejor calculadora del mundo con un diseño divertido, haz que el producto final sea un ejecutable .exe para windows
+2025-02-03 02:26:28 | INFO | Plan creado exitosamente

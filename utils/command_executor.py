@@ -1,203 +1,167 @@
 """
-Utilidad para ejecutar comandos en la terminal con capacidades avanzadas.
+Utilidades para la ejecución de comandos del sistema.
 """
-from typing import Dict, List, Optional, Union
-from pathlib import Path
-from .system_manager import SystemManager
-import os
-import subprocess
-import sys
 
-class CommandExecutor:
-    """Clase para ejecutar comandos en la terminal con capacidades avanzadas."""
+import os
+import asyncio
+import platform
+import logging
+from pathlib import Path
+from typing import List, Tuple, Optional
+
+async def execute_command(command: str, cwd: str = None) -> Tuple[str, str, int]:
+    """
+    Ejecuta un comando del sistema de forma asíncrona y multiplataforma.
     
-    def __init__(self, working_dir: Optional[Path] = None):
-        """
-        Inicializa el ejecutor de comandos.
+    Args:
+        command: Comando a ejecutar
+        cwd: Directorio de trabajo
         
-        Args:
-            working_dir: Directorio de trabajo opcional
-        """
-        self.system = SystemManager(working_dir)
-        self.working_dir = working_dir or Path.cwd()
+    Returns:
+        Tupla con (stdout, stderr, código_retorno)
+    """
+    logging.info(f"Ejecutando comando: {command}")
+    
+    # Adaptar comando según plataforma
+    system = platform.system()
+    shell = True
+    if system == "Windows":
+        # En Windows, algunos comandos necesitan ser ejecutados a través de cmd
+        if any(cmd in command for cmd in ["npm", "yarn", "pip"]):
+            command = f"cmd /c {command}"
+    elif system == "Linux" or system == "Darwin":  # Darwin es macOS
+        # En Unix, podemos usar bash directamente
+        if command.startswith("cmd /c"):
+            command = command[7:]  # Quitar "cmd /c "
+    
+    try:
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=cwd,
+            shell=shell
+        )
         
-    def execute(self, command: Union[str, List[str]], capture_output: bool = True, shell: bool = False) -> Dict:
-        """
-        Ejecuta un comando en la terminal.
+        stdout, stderr = await process.communicate()
         
-        Args:
-            command: Comando a ejecutar
-            capture_output: Si se debe capturar la salida
-            shell: Si se debe usar shell
-            
-        Returns:
-            Dict con el resultado de la ejecución
-        """
-        return self.system.execute_command(command, shell=shell)
+        stdout_text = stdout.decode('utf-8', errors='replace') if stdout else ""
+        stderr_text = stderr.decode('utf-8', errors='replace') if stderr else ""
         
-    def install_package(self, package: str) -> Dict:
-        """
-        Instala un paquete usando pip.
+        if stdout_text:
+            logging.info(f"Salida: {stdout_text[:100]}...")
+        if stderr_text:
+            logging.warning(f"Error: {stderr_text[:100]}...")
         
-        Args:
-            package: Nombre del paquete
-            
-        Returns:
-            Dict con el resultado de la instalación
-        """
-        python_exe = str(self.working_dir / "venv" / "Scripts" / "python.exe")
-        if os.path.exists(python_exe):
-            return self.system.execute_command([python_exe, "-m", "pip", "install", package])
+        return stdout_text, stderr_text, process.returncode
+    except Exception as e:
+        logging.error(f"Error al ejecutar comando '{command}': {str(e)}")
+        return "", str(e), 1
+
+async def create_file(path: str, content: str, base_dir: str = None) -> bool:
+    """
+    Crea un archivo con el contenido especificado.
+    
+    Args:
+        path: Ruta relativa del archivo
+        content: Contenido a escribir
+        base_dir: Directorio base (por defecto current working directory)
+        
+    Returns:
+        True si se creó exitosamente, False en caso contrario
+    """
+    try:
+        # Normalizar path según plataforma
+        path = Path(path)
+        if base_dir:
+            full_path = Path(base_dir) / path
         else:
-            return self.system.execute_command(["pip", "install", package])
+            full_path = Path.cwd() / path
         
-    def run_python_script(self, script_path: Path, args: str = "") -> Dict:
-        """
-        Ejecuta un script de Python.
+        # Crear directorio si no existe
+        full_path.parent.mkdir(parents=True, exist_ok=True)
         
-        Args:
-            script_path: Ruta al script
-            args: Argumentos adicionales
+        # Escribir contenido
+        with open(full_path, "w", encoding="utf-8") as f:
+            f.write(content)
             
-        Returns:
-            Dict con el resultado de la ejecución
-        """
-        python_exe = str(self.working_dir / "venv" / "Scripts" / "python.exe")
-        if os.path.exists(python_exe):
-            return self.system.execute_command([python_exe, str(script_path)] + (args.split() if args else []))
+        logging.info(f"Archivo creado: {full_path}")
+        return True
+    except Exception as e:
+        logging.error(f"Error al crear archivo '{path}': {str(e)}")
+        return False
+
+async def create_directory(path: str, base_dir: str = None) -> bool:
+    """
+    Crea un directorio.
+    
+    Args:
+        path: Ruta relativa del directorio
+        base_dir: Directorio base (por defecto current working directory)
+        
+    Returns:
+        True si se creó exitosamente, False en caso contrario
+    """
+    try:
+        # Normalizar path según plataforma
+        path = Path(path)
+        if base_dir:
+            full_path = Path(base_dir) / path
         else:
-            return self.system.execute_command(["python", str(script_path)] + (args.split() if args else []))
+            full_path = Path.cwd() / path
         
-    def run_tests(self, test_path: Optional[Path] = None) -> Dict:
-        """
-        Ejecuta tests usando pytest.
+        # Crear directorio
+        full_path.mkdir(parents=True, exist_ok=True)
         
-        Args:
-            test_path: Ruta opcional a los tests específicos
+        logging.info(f"Directorio creado: {full_path}")
+        return True
+    except Exception as e:
+        logging.error(f"Error al crear directorio '{path}': {str(e)}")
+        return False
+
+async def process_agent_actions(actions: List[str], cwd: str) -> List[Tuple[str, bool]]:
+    """
+    Procesa las acciones ejecutadas por un agente.
+    
+    Args:
+        actions: Lista de acciones a ejecutar
+        cwd: Directorio de trabajo
+        
+    Returns:
+        Lista de tuplas (acción, éxito)
+    """
+    results = []
+    
+    for action in actions:
+        success = False
+        try:
+            if action.startswith("create_file:"):
+                # Formato: create_file:path:content
+                parts = action.split(":", 2)
+                if len(parts) >= 3:
+                    path, content = parts[1], parts[2]
+                    success = await create_file(path, content, cwd)
+                else:
+                    logging.error(f"Formato incorrecto para create_file: {action}")
             
-        Returns:
-            Dict con el resultado de los tests
-        """
-        python_exe = str(self.working_dir / "venv" / "Scripts" / "python.exe")
-        command = [python_exe, "-m", "pytest"] if os.path.exists(python_exe) else ["pytest"]
-        if test_path:
-            command.append(str(test_path))
-        command.append("-v")
-        return self.system.execute_command(command)
-        
-    def create_virtual_env(self, env_name: str = "venv") -> Dict:
-        """
-        Crea un entorno virtual.
-        
-        Args:
-            env_name: Nombre del entorno virtual
+            elif action.startswith("run_command:"):
+                # Formato: run_command:command
+                command = action.split(":", 1)[1]
+                _, stderr, code = await execute_command(command, cwd)
+                success = code == 0
             
-        Returns:
-            Dict con el resultado de la creación
-        """
-        return self.system.execute_command([sys.executable, "-m", "venv", env_name])
-        
-    def activate_virtual_env(self) -> Dict:
-        """
-        Activa el entorno virtual.
-        
-        Returns:
-            Dict con el resultado de la activación
-        """
-        if os.name == "nt":  # Windows
-            activate_script = str(self.working_dir / "venv" / "Scripts" / "activate.bat")
-            if os.path.exists(activate_script):
-                # En Windows, necesitamos usar cmd.exe para activar el entorno
-                command = [activate_script]
-                result = self.system.execute_command(command)
+            elif action.startswith("mkdir:"):
+                # Formato: mkdir:path
+                path = action.split(":", 1)[1]
+                success = await create_directory(path, cwd)
+            
+            else:
+                logging.warning(f"Acción no reconocida: {action}")
                 
-                # Actualizar variables de entorno
-                if result["success"]:
-                    # Obtener las variables de entorno actualizadas
-                    env_result = self.system.execute_command("set")
-                    if env_result["success"]:
-                        for line in env_result["output"].splitlines():
-                            if "=" in line:
-                                key, value = line.split("=", 1)
-                                os.environ[key] = value
-                                
-                return result
-            else:
-                return {
-                    "success": False,
-                    "error": "No se encontró el script de activación",
-                    "return_code": -1
-                }
-        else:  # Unix/Linux
-            activate_script = str(self.working_dir / "venv" / "bin" / "activate")
-            if os.path.exists(activate_script):
-                return self.system.execute_command(f"source {activate_script}", shell=True)
-            else:
-                return {
-                    "success": False,
-                    "error": "No se encontró el script de activación",
-                    "return_code": -1
-                }
-            
-    def setup_development_environment(self, requirements: Dict) -> Dict:
-        """
-        Configura un entorno de desarrollo completo.
+        except Exception as e:
+            logging.error(f"Error al procesar acción {action}: {str(e)}")
+            success = False
         
-        Args:
-            requirements: Requerimientos del entorno
-            
-        Returns:
-            Dict con el resultado
-        """
-        return self.system.setup_development_environment(requirements)
-        
-    def run_parallel_commands(self, commands: List[Union[str, List[str]]], mode: str = "thread") -> List[Dict]:
-        """
-        Ejecuta comandos en paralelo.
-        
-        Args:
-            commands: Lista de comandos
-            mode: Modo de ejecución ('thread' o 'process')
-            
-        Returns:
-            Lista de resultados
-        """
-        return self.system.parallel_execute(commands, mode)
-        
-    def create_container(self, image: str, **kwargs) -> Dict:
-        """
-        Crea un contenedor Docker.
-        
-        Args:
-            image: Imagen Docker
-            **kwargs: Argumentos adicionales
-            
-        Returns:
-            Dict con información del contenedor
-        """
-        return self.system.create_container(image, **kwargs)
-        
-    def monitor_system(self) -> Dict:
-        """
-        Monitorea recursos del sistema.
-        
-        Returns:
-            Dict con información de recursos
-        """
-        return self.system.monitor_resources()
-        
-    def backup_project(self, backup_dir: Optional[Path] = None) -> Dict:
-        """
-        Crea un backup completo del proyecto.
-        
-        Args:
-            backup_dir: Directorio para el backup
-            
-        Returns:
-            Dict con el resultado
-        """
-        return self.system.backup_project(backup_dir)
-        
-    def cleanup(self):
-        """Limpia recursos del sistema."""
-        self.system.cleanup()
+        results.append((action, success))
+    
+    return results

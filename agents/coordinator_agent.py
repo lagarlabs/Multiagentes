@@ -17,6 +17,8 @@ from agno.models.deepseek import DeepSeekChat
 
 from .programmer_agent import ProgrammerAgent
 from .qa_agent import QAAgent
+from utils.json_helpers import parse_agent_response
+from utils.config_manager import ConfigManager
 
 class CoordinatorAgent:
     """Agente coordinador que gestiona las tareas entre los demás agentes"""
@@ -28,9 +30,12 @@ class CoordinatorAgent:
         Args:
             working_dir: Directorio de trabajo opcional
         """
+        # Obtener configuración
+        self.config = ConfigManager()
+        
         # Inicializar el agente principal con OpenAI
         self.agent = Agent(
-            model=OpenAIChat(id="gpt-4o"),
+            model=OpenAIChat(id=self.config.get("default_model")),
             description=dedent("""\
                 Eres un líder técnico experto con años de experiencia en gestión de proyectos.
                 Tu objetivo es coordinar el desarrollo de software de manera eficiente.
@@ -88,7 +93,7 @@ class CoordinatorAgent:
         
         # Inicializar el agente de razonamiento con DeepSeek
         self.reasoning_agent = Agent(
-            model=DeepSeekChat(id="deepseek-reasoner"),
+            model=DeepSeekChat(id=self.config.get("reasoning_model")),
             description=dedent("""\
                 Eres un arquitecto de software que utiliza razonamiento paso a paso
                 para diseñar sistemas complejos y tomar decisiones estratégicas.\
@@ -152,7 +157,7 @@ class CoordinatorAgent:
             response = await self.agent.arun(planning_prompt)
             
             try:
-                plan = json.loads(response.content)
+                plan = parse_agent_response(response.content, "respuesta del plan")
                 self.current_project = plan
                 
                 # Comenzar la implementación
@@ -195,11 +200,11 @@ class CoordinatorAgent:
                     "processed_at": datetime.now().isoformat()
                 }
                 
-            except json.JSONDecodeError as e:
-                logger.error(f"Error al parsear respuesta JSON: {str(e)}")
+            except Exception as e:
+                logger.error(f"Error al procesar respuesta JSON: {str(e)}")
                 return {
                     "status": "error",
-                    "error": f"Error al parsear respuesta JSON: {str(e)}",
+                    "error": f"Error al procesar respuesta JSON: {str(e)}",
                     "raw_response": response.content
                 }
                 
@@ -240,7 +245,7 @@ class CoordinatorAgent:
             response = await self.agent.arun(prompt)
             
             try:
-                result = json.loads(response.content)
+                result = parse_agent_response(response.content, "respuesta de actualización")
                 self.current_project = result
                 return {
                     "status": "success",
@@ -248,11 +253,11 @@ class CoordinatorAgent:
                     "updated_at": datetime.now().isoformat()
                 }
                 
-            except json.JSONDecodeError as e:
-                logger.error(f"Error al parsear respuesta JSON: {str(e)}")
+            except Exception as e:
+                logger.error(f"Error al procesar respuesta JSON: {str(e)}")
                 return {
                     "status": "error",
-                    "error": f"Error al parsear respuesta JSON: {str(e)}",
+                    "error": f"Error al procesar respuesta JSON: {str(e)}",
                     "raw_response": response.content
                 }
                 
@@ -293,18 +298,18 @@ class CoordinatorAgent:
             response = await self.agent.arun(prompt)
             
             try:
-                result = json.loads(response.content)
+                result = parse_agent_response(response.content, "respuesta del reporte")
                 return {
                     "status": "success",
                     "report": result,
                     "generated_at": datetime.now().isoformat()
                 }
                 
-            except json.JSONDecodeError as e:
-                logger.error(f"Error al parsear respuesta JSON: {str(e)}")
+            except Exception as e:
+                logger.error(f"Error al procesar respuesta JSON: {str(e)}")
                 return {
                     "status": "error",
-                    "error": f"Error al parsear respuesta JSON: {str(e)}",
+                    "error": f"Error al procesar respuesta JSON: {str(e)}",
                     "raw_response": response.content
                 }
                 

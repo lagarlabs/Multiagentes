@@ -37,7 +37,6 @@ logger.add(
     "logs/app.log",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
     level=os.getenv("LOG_LEVEL", "INFO"),
-    rotation="1 day",
     retention="7 days"
 )
 
@@ -165,16 +164,39 @@ class MultiAgentSystem:
             
             # Preguntar si desea proceder con la implementación
             if Confirm.ask("\n¿Deseas proceder con la implementación del proyecto?"):
-                plan = ProjectPlan(**plan_result["plan"])
+                # Crear objeto ProjectPlan desde el diccionario
+                plan_dict = plan_result["plan"]
+                
+                # Asegurarse de que las fechas estén en el formato correcto
+                if isinstance(plan_dict.get("start_date"), str):
+                    plan_dict["start_date"] = datetime.fromisoformat(plan_dict["start_date"].replace("Z", "+00:00"))
+                if isinstance(plan_dict.get("created_at"), str):
+                    plan_dict["created_at"] = datetime.fromisoformat(plan_dict["created_at"].replace("Z", "+00:00"))
+                if isinstance(plan_dict.get("updated_at"), str):
+                    plan_dict["updated_at"] = datetime.fromisoformat(plan_dict["updated_at"].replace("Z", "+00:00"))
+                
+                # Crear objetos de tareas
+                tasks = []
+                for task_dict in plan_dict.get("tasks", []):
+                    task = ProjectTask(**task_dict)
+                    tasks.append(task)
+                
+                # Reemplazar la lista de tareas en el diccionario
+                plan_dict["tasks"] = tasks
+                
+                # Crear el plan completo
+                plan = ProjectPlan(**plan_dict)
                 
                 # Implementar cada tarea
+                console.print("\n[bold blue]Implementando tareas del proyecto...[/bold blue]")
+                
                 for task in plan.tasks:
-                    console.print(f"\n[bold blue]Implementando tarea: {task.title}[/bold blue]")
+                    console.print(f"\n[bold cyan]Implementando tarea: {task.title}[/bold cyan]")
                     
                     implementation_result = await self.workflow.implement_task(task)
                     
                     if implementation_result["status"] != "success":
-                        console.print(f"[bold red]Error al implementar tarea: {implementation_result['error']}[/bold red]")
+                        console.print(f"[bold red]Error al implementar tarea: {implementation_result.get('error', 'Error desconocido')}[/bold red]")
                         continue
                     
                     # Mostrar resultados de la implementación
@@ -193,6 +215,13 @@ class MultiAgentSystem:
                         if t.id == task.id:
                             plan.tasks[i] = ProjectTask(**task_dict)
                             break
+                    
+                    # Ejecutar acciones para esta tarea
+                    console.print("\n[bold blue]Ejecutando acciones para esta tarea...[/bold blue]")
+                    if hasattr(task, 'files_created') and task.files_created:
+                        await self.workflow.process_agent_actions(task.files_created, os.getcwd())
+                    if hasattr(task, 'commands_executed') and task.commands_executed:
+                        await self.workflow.process_agent_actions(task.commands_executed, os.getcwd())
                 
                 # Preguntar si desea desplegar el proyecto
                 if Confirm.ask("\n¿Deseas desplegar el proyecto?"):

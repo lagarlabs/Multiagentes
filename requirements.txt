@@ -1,25 +1,18 @@
 # Dependencias principales
-agno==1.0.4
+agno>=1.0.0
 openai>=1.0.0
+deepseek-ai>=0.1.0
 python-dotenv>=1.0.0
 loguru>=0.7.0
-psutil>=6.1.1
-pytest>=7.0.0
-
-# Interfaz y formato
 rich>=13.0.0
-httpx>=0.24.0
-asyncio>=3.4.3
+pydantic>=2.0.0
 
-# Base de datos y almacenamiento
-sqlalchemy>=1.4.0
-psycopg2-binary>=2.9.9
+# Base de datos
+psycopg2-binary>=2.9.5
 pgvector>=0.2.0
 
-# Utilidades
-pydantic>=2.0.0
-jiter>=0.8.2
-distro>=1.9.0
-tqdm>=4.67.1
-typing-extensions>=4.0.0
-python-dateutil>=2.8.0
+# Herramientas
+requests>=2.28.0
+aiohttp>=3.8.0
+PyGithub>=1.58.0
+pytest>=7.3.0

@@ -23,6 +23,10 @@ from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.firecrawl import FirecrawlTools
 
 from .models import ProjectPlan, ProjectTask
+from utils.json_helpers import parse_agent_response, validate_required_fields
+from utils.command_executor import process_agent_actions
+from utils.config_manager import ConfigManager
+from agents.agent_factory import AgentFactory
 
 class ProjectWorkflow(Workflow):
     """
@@ -33,306 +37,49 @@ class ProjectWorkflow(Workflow):
         """Inicializa el workflow con configuración de modelos"""
         super().__init__()
         
-        # Verificar configuración
+        # Inicializar configuración
+        self.config = ConfigManager()
         logging.info("Inicializando ProjectWorkflow...")
-        logging.info(f"DEFAULT_MODEL: {os.getenv('DEFAULT_MODEL')}")
-        logging.info(f"OPENAI_API_KEY presente: {bool(os.getenv('OPENAI_API_KEY'))}")
-        
-        try:
-            # Configurar modelo principal
-            self.openai_model = OpenAIChat(
-                id="gpt-4o",  # Usar gpt-4o
-                temperature=float(os.getenv("TEMPERATURE", "0.7")),
-                max_tokens=int(os.getenv("MAX_TOKENS", "2000")),
-                max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                api_key=os.getenv("OPENAI_API_KEY")  # Agregar explícitamente la API key
-            )
-            logging.info("Modelo OpenAI inicializado correctamente")
-            
-        except Exception as e:
-            logging.error(f"Error al inicializar modelo OpenAI: {str(e)}")
-            raise
+        logging.info(f"DEFAULT_MODEL: {self.config.get('default_model')}")
+        logging.info(f"OPENAI_API_KEY presente: {bool(self.config.get('openai_api_key'))}")
         
         # Inicializar base de conocimiento
         self.knowledge_base = self.setup_knowledge_base()
         
-        # Configurar agentes
+        # Configurar fábrica de agentes
+        self.agent_factory = AgentFactory(self.knowledge_base)
+        
+        # Inicializar agentes
         self.setup_agents()
+        
+        logging.info("ProjectWorkflow inicializado correctamente")
     
     def setup_knowledge_base(self):
         """Configura la base de conocimiento para los agentes"""
         return AgentKnowledge(
             vector_db=PgVector(
                 table_name="project_knowledge",
-                db_url=os.getenv("DATABASE_URL", "postgresql://localhost:5432/agno"),
+                db_url=self.config.get("database_url"),
                 search_type="hybrid"
             )
         )
     
     def setup_agents(self):
         """Configura los agentes especializados"""
-        
-        # Verificar configuración de GitHub
-        github_token = os.getenv("GITHUB_TOKEN")
-        logging.info(f"GitHub Token presente: {bool(github_token)}")
-        if not github_token:
-            logging.error("GitHub Token no encontrado en variables de entorno")
-            raise ValueError("GitHub access token is required")
-        
-        # Herramientas comunes
         try:
-            github_tools = GithubTools(github_token)  # Solo usar el token
-            logging.info("GithubTools inicializado correctamente")
-        except Exception as e:
-            logging.error(f"Error al inicializar GithubTools: {str(e)}")
-            raise
+            # Crear los agentes utilizando la fábrica
+            self.research_agent = self.agent_factory.create_research_agent()
+            self.architect = self.agent_factory.create_architect_agent()
+            self.developer = self.agent_factory.create_developer_agent()
+            self.qa_agent = self.agent_factory.create_qa_agent()
+            self.security_agent = self.agent_factory.create_security_agent()
+            self.devops_agent = self.agent_factory.create_devops_agent()
             
-        shell_tools = ShellTools()
-        duck_tools = DuckDuckGoTools()
-        firecrawl_tools = FirecrawlTools()
-        
-        # Investigador y Analista
-        self.research_agent = Agent(
-            name="Research Specialist",
-            model=self.openai_model,
-            knowledge=self.knowledge_base,
-            tools=[duck_tools, firecrawl_tools, shell_tools],
-            description="""Eres un investigador experto en tecnologías y desarrollo de software.
-            Tienes la capacidad de ejecutar comandos en la terminal y crear archivos cuando sea necesario.
-            Tu especialidad es analizar requisitos técnicos y proponer soluciones óptimas.""",
-            instructions=[
-                "Investiga a fondo las tecnologías solicitadas",
-                "Analiza las mejores prácticas actuales",
-                "Evalúa ventajas y desventajas de cada opción",
-                "Crea archivos de documentación cuando sea necesario",
-                "Ejecuta comandos para instalar dependencias requeridas",
-                "IMPORTANTE: Responde SOLO con el JSON especificado"
-            ],
-            expected_output="""{
-                "technologies": ["lista", "de", "tecnologías"],
-                "best_practices": ["lista", "de", "mejores", "prácticas"],
-                "considerations": ["lista", "de", "consideraciones"],
-                "examples": ["lista", "de", "ejemplos"],
-                "actions_taken": ["lista", "de", "acciones", "ejecutadas"]
-            }""",
-            markdown=True,
-            show_tool_calls=True
-        )
-        
-        # Arquitecto
-        self.architect = Agent(
-            name="Solution Architect",
-            model=self.openai_model,
-            knowledge=self.knowledge_base,
-            tools=[github_tools, shell_tools],
-            description="""Eres un arquitecto de software experto con capacidad de ejecutar comandos y crear archivos.
-            Tu objetivo es diseñar soluciones técnicas robustas y crear la estructura base del proyecto.""",
-            instructions=[
-                "Diseña arquitecturas modulares y mantenibles",
-                "Crea la estructura inicial de directorios",
-                "Inicializa archivos de configuración",
-                "Configura el entorno de desarrollo",
-                "Ejecuta comandos para preparar el proyecto",
-                "IMPORTANTE: Responde SOLO con el JSON especificado"
-            ],
-            expected_output="""{
-                "components": ["lista", "de", "componentes"],
-                "patterns": ["lista", "de", "patrones"],
-                "security": ["consideraciones", "de", "seguridad"],
-                "architecture": {
-                    "descripción": "de la arquitectura",
-                    "diagrama": "descripción textual del diagrama"
-                },
-                "actions_taken": ["lista", "de", "acciones", "ejecutadas"]
-            }""",
-            markdown=True,
-            show_tool_calls=True
-        )
-        
-        # Desarrollador
-        self.developer = Agent(
-            name="Lead Developer",
-            model=self.openai_model,
-            knowledge=self.knowledge_base,
-            tools=[github_tools, shell_tools],
-            description="""Eres un desarrollador senior con capacidad de ejecutar comandos y crear/modificar archivos.
-            Tu objetivo es implementar código de alta calidad y gestionar el proyecto.""",
-            instructions=[
-                "Crea y modifica archivos de código",
-                "Implementa las funcionalidades requeridas",
-                "Ejecuta pruebas y verifica la calidad",
-                "Gestiona dependencias del proyecto",
-                "Usa la terminal para tareas de desarrollo",
-                "IMPORTANTE: Responde SOLO con el JSON especificado"
-            ],
-            expected_output="""{
-                "title": "Título del proyecto",
-                "description": "Descripción detallada",
-                "tasks": [
-                    {
-                        "id": "task-1",
-                        "title": "Título de la tarea",
-                        "description": "Descripción detallada",
-                        "estimated_hours": 4.5,
-                        "dependencies": ["lista", "de", "ids"],
-                        "status": "pending",
-                        "files_created": ["lista", "de", "archivos"],
-                        "commands_executed": ["lista", "de", "comandos"]
-                    }
-                ],
-                "total_estimated_hours": 10.5,
-                "technologies": ["tech1", "tech2"],
-                "requirements": ["req1", "req2"],
-                "architecture": {"key": "value"},
-                "security_considerations": ["sec1", "sec2"],
-                "actions_taken": ["lista", "de", "acciones", "ejecutadas"]
-            }""",
-            markdown=True,
-            show_tool_calls=True
-        )
-        
-        # QA y Tester
-        self.qa_agent = Agent(
-            name="Quality Assurance",
-            model=self.openai_model,
-            knowledge=self.knowledge_base,
-            tools=[shell_tools],
-            description="""Eres un experto en control de calidad y testing.
-            Tu objetivo es garantizar la calidad y confiabilidad del software.""",
-            instructions=[
-                "Revisa el código exhaustivamente",
-                "Ejecuta y verifica pruebas unitarias",
-                "Realiza pruebas de integración",
-                "Identifica posibles problemas de seguridad",
-                "Sugiere mejoras y optimizaciones"
-            ],
-            markdown=True,
-            show_tool_calls=True
-        )
-        
-        # DevOps Engineer
-        self.devops_agent = Agent(
-            name="DevOps Engineer",
-            model=self.openai_model,
-            knowledge=self.knowledge_base,
-            tools=[shell_tools, github_tools],
-            description="""Eres un ingeniero DevOps experimentado.
-            Te especializas en automatización, CI/CD y despliegue.""",
-            instructions=[
-                "Configura entornos de desarrollo",
-                "Implementa pipelines de CI/CD",
-                "Gestiona dependencias y paquetes",
-                "Optimiza procesos de build y deploy",
-                "Monitorea el rendimiento del sistema"
-            ],
-            markdown=True,
-            show_tool_calls=True
-        )
-        
-        # Security Expert
-        self.security_agent = Agent(
-            name="Security Expert",
-            model=self.openai_model,
-            knowledge=self.knowledge_base,
-            tools=[github_tools, shell_tools],
-            description="""Eres un experto en seguridad de aplicaciones.
-            Tu misión es identificar y prevenir vulnerabilidades.""",
-            instructions=[
-                "Realiza análisis de seguridad",
-                "Identifica vulnerabilidades potenciales",
-                "Recomienda mejores prácticas de seguridad",
-                "Audita el código en busca de problemas",
-                "Propone soluciones de seguridad"
-            ],
-            markdown=True,
-            show_tool_calls=True
-        )
-
-    async def process_agent_actions(self, actions: List[str], cwd: str) -> None:
-        """
-        Procesa las acciones ejecutadas por un agente
-        
-        Args:
-            actions: Lista de acciones a ejecutar
-            cwd: Directorio de trabajo
-        """
-        for action in actions:
-            try:
-                if action.startswith("create_file:"):
-                    # Formato: create_file:path:content
-                    _, path, content = action.split(":", 2)
-                    full_path = os.path.join(cwd, path.replace("/", "\\"))
-                    os.makedirs(os.path.dirname(full_path), exist_ok=True)
-                    with open(full_path, "w", encoding="utf-8") as f:
-                        f.write(content)
-                    logging.info(f"Archivo creado: {full_path}")
-                
-                elif action.startswith("run_command:"):
-                    # Formato: run_command:command
-                    command = action.split(":", 1)[1]
-                    logging.info(f"Ejecutando comando: {command}")
-                    
-                    # Convertir comandos Unix a Windows
-                    if command.startswith("mkdir"):
-                        parts = command.split()
-                        if "-p" in parts:
-                            parts.remove("-p")
-                        dirs = [p.replace("/", "\\") for p in parts[1:]]
-                        for dir_path in dirs:
-                            full_path = os.path.join(cwd, dir_path)
-                            os.makedirs(full_path, exist_ok=True)
-                            logging.info(f"Directorio creado: {full_path}")
-                    
-                    elif command.startswith("touch"):
-                        # Convertir touch a crear archivo vacío
-                        parts = command.split()
-                        file_path = parts[1].replace("/", "\\")
-                        full_path = os.path.join(cwd, file_path)
-                        os.makedirs(os.path.dirname(full_path), exist_ok=True)
-                        open(full_path, 'a').close()
-                        logging.info(f"Archivo creado: {full_path}")
-                    
-                    elif command.startswith("npm"):
-                        # Usar npm desde cmd
-                        modified_command = f"cmd /c {command}"
-                        process = await asyncio.create_subprocess_shell(
-                            modified_command,
-                            stdout=asyncio.subprocess.PIPE,
-                            stderr=asyncio.subprocess.PIPE,
-                            cwd=cwd
-                        )
-                        stdout, stderr = await process.communicate()
-                        if stdout:
-                            logging.info(f"Salida: {stdout.decode()}")
-                        if stderr:
-                            logging.error(f"Error: {stderr.decode()}")
-                    
-                    else:
-                        process = await asyncio.create_subprocess_shell(
-                            command,
-                            stdout=asyncio.subprocess.PIPE,
-                            stderr=asyncio.subprocess.PIPE,
-                            cwd=cwd
-                        )
-                        stdout, stderr = await process.communicate()
-                        if stdout:
-                            logging.info(f"Salida: {stdout.decode()}")
-                        if stderr:
-                            logging.error(f"Error: {stderr.decode()}")
-                    
-                elif action.startswith("mkdir:"):
-                    # Formato: mkdir:path
-                    path = action.split(":", 1)[1]
-                    full_path = os.path.join(cwd, path.replace("/", "\\"))
-                    os.makedirs(full_path, exist_ok=True)
-                    logging.info(f"Directorio creado: {full_path}")
-                
-                else:
-                    logging.info(f"Acción ejecutada: {action}")
-                    
-            except Exception as e:
-                logging.error(f"Error al procesar acción {action}: {str(e)}")
-
+            logging.info("Todos los agentes inicializados correctamente")
+        except Exception as e:
+            logging.error(f"Error al inicializar agentes: {str(e)}")
+            raise
+    
     def _serialize_plan(self, plan: ProjectPlan) -> dict:
         """
         Serializa el plan a un diccionario JSON-serializable
@@ -381,7 +128,7 @@ class ProjectWorkflow(Workflow):
                 create_file:ruta\\archivo:
                 
                 Para instalar dependencias usa:
-                run_command:cmd /c comando
+                run_command:comando
                 
                 IMPORTANTE: Responde SOLO con un objeto JSON válido según el formato especificado.
                 NO incluyas ningún otro texto o explicación fuera del JSON.
@@ -391,24 +138,20 @@ class ProjectWorkflow(Workflow):
             logging.info(f"Research response: {research_response.content}")
             
             try:
-                # Limpiar la respuesta de cualquier texto adicional
-                json_str = research_response.content.strip()
-                if "```json" in json_str:
-                    json_str = json_str.split("```json")[1].split("```")[0].strip()
-                elif "```" in json_str:
-                    json_str = json_str.split("```")[1].strip()
-                
-                research_data = json.loads(json_str)
+                # Usar la utilidad para parsear la respuesta JSON
+                research_data = parse_agent_response(
+                    research_response.content, 
+                    "respuesta del investigador"
+                )
                 logging.info(f"Research data parsed: {json.dumps(research_data, indent=2)}")
                 
                 # Procesar acciones del investigador
                 if "actions_taken" in research_data:
-                    await self.process_agent_actions(research_data["actions_taken"], os.getcwd())
+                    await process_agent_actions(research_data["actions_taken"], os.getcwd())
                 
-            except json.JSONDecodeError as e:
-                logging.error(f"Error al parsear research response: {str(e)}")
-                logging.error(f"Research content: {research_response.content}")
-                raise ValueError("La respuesta del investigador no es un JSON válido")
+            except ValueError as e:
+                logging.error(f"Error al procesar respuesta del investigador: {str(e)}")
+                raise ValueError(f"Error al procesar respuesta del investigador: {str(e)}")
             
             # El arquitecto diseña la solución
             architecture_response = await self.architect.arun(
@@ -430,7 +173,7 @@ class ProjectWorkflow(Workflow):
                 create_file:ruta\\archivo:
                 
                 Para instalar dependencias usa:
-                run_command:cmd /c comando
+                run_command:comando
                 
                 IMPORTANTE: Responde SOLO con un objeto JSON válido según el formato especificado.
                 NO incluyas ningún otro texto o explicación fuera del JSON.
@@ -440,24 +183,20 @@ class ProjectWorkflow(Workflow):
             logging.info(f"Architecture response: {architecture_response.content}")
             
             try:
-                # Limpiar la respuesta de cualquier texto adicional
-                json_str = architecture_response.content.strip()
-                if "```json" in json_str:
-                    json_str = json_str.split("```json")[1].split("```")[0].strip()
-                elif "```" in json_str:
-                    json_str = json_str.split("```")[1].strip()
-                
-                architecture_data = json.loads(json_str)
+                # Usar la utilidad para parsear la respuesta JSON
+                architecture_data = parse_agent_response(
+                    architecture_response.content, 
+                    "respuesta del arquitecto"
+                )
                 logging.info(f"Architecture data parsed: {json.dumps(architecture_data, indent=2)}")
                 
                 # Procesar acciones del arquitecto
                 if "actions_taken" in architecture_data:
-                    await self.process_agent_actions(architecture_data["actions_taken"], os.getcwd())
+                    await process_agent_actions(architecture_data["actions_taken"], os.getcwd())
                 
-            except json.JSONDecodeError as e:
-                logging.error(f"Error al parsear architecture response: {str(e)}")
-                logging.error(f"Architecture content: {architecture_response.content}")
-                raise ValueError("La respuesta del arquitecto no es un JSON válido")
+            except ValueError as e:
+                logging.error(f"Error al procesar respuesta del arquitecto: {str(e)}")
+                raise ValueError(f"Error al procesar respuesta del arquitecto: {str(e)}")
             
             # El planificador crea el plan detallado
             plan_response = await self.developer.arun(
@@ -478,7 +217,7 @@ class ProjectWorkflow(Workflow):
                 create_file:ruta\\archivo:
                 
                 Para instalar dependencias usa:
-                run_command:cmd /c comando
+                run_command:comando
                 
                 IMPORTANTE: Responde SOLO con un objeto JSON válido según el formato especificado.
                 NO incluyas ningún otro texto o explicación fuera del JSON.
@@ -488,45 +227,37 @@ class ProjectWorkflow(Workflow):
             logging.info(f"Plan response: {plan_response.content}")
             
             try:
-                # Limpiar la respuesta de cualquier texto adicional
-                json_str = plan_response.content.strip()
-                if "```json" in json_str:
-                    json_str = json_str.split("```json")[1].split("```")[0].strip()
-                elif "```" in json_str:
-                    json_str = json_str.split("```")[1].strip()
-                
-                plan_dict = json.loads(json_str)
+                # Usar la utilidad para parsear la respuesta JSON
+                plan_dict = parse_agent_response(
+                    plan_response.content, 
+                    "respuesta del planificador"
+                )
                 logging.info(f"Plan data parsed: {json.dumps(plan_dict, indent=2)}")
                 
                 # Procesar acciones del desarrollador
                 if "actions_taken" in plan_dict:
-                    await self.process_agent_actions(plan_dict["actions_taken"], os.getcwd())
+                    await process_agent_actions(plan_dict["actions_taken"], os.getcwd())
                 
                 # Procesar acciones de las tareas
                 for task in plan_dict.get("tasks", []):
                     if "files_created" in task:
-                        await self.process_agent_actions(task["files_created"], os.getcwd())
+                        await process_agent_actions(task["files_created"], os.getcwd())
                     if "commands_executed" in task:
-                        await self.process_agent_actions(task["commands_executed"], os.getcwd())
+                        await process_agent_actions(task["commands_executed"], os.getcwd())
                 
-            except json.JSONDecodeError as e:
-                logging.error(f"Error al parsear plan response: {str(e)}")
-                logging.error(f"Plan content: {plan_response.content}")
-                raise ValueError("El plan generado no es un JSON válido")
+            except ValueError as e:
+                logging.error(f"Error al procesar respuesta del planificador: {str(e)}")
+                raise ValueError(f"Error al procesar respuesta del planificador: {str(e)}")
             
             # Validar que tenga todos los campos requeridos
             required_fields = ["title", "description", "tasks", "total_estimated_hours", 
                              "technologies", "requirements"]
-            for field in required_fields:
-                if field not in plan_dict:
-                    raise ValueError(f"Campo requerido '{field}' no encontrado en el plan")
+            validate_required_fields(plan_dict, required_fields, "plan")
             
             # Validar que cada tarea tenga los campos requeridos
             task_fields = ["id", "title", "description", "estimated_hours"]
             for task in plan_dict["tasks"]:
-                for field in task_fields:
-                    if field not in task:
-                        raise ValueError(f"Campo requerido '{field}' no encontrado en tarea")
+                validate_required_fields(task, task_fields, "tarea")
             
             # Crear instancia de ProjectPlan
             plan = ProjectPlan(**plan_dict)
@@ -540,6 +271,7 @@ class ProjectWorkflow(Workflow):
             }
             
         except Exception as e:
+            logging.error(f"Error al crear plan: {str(e)}")
             return {"status": "error", "error": f"Error al crear plan: {str(e)}"}
 
     async def implement_task(self, task: ProjectTask) -> Dict:
@@ -623,6 +355,7 @@ class ProjectWorkflow(Workflow):
             }
             
         except Exception as e:
+            logging.error(f"Error al implementar tarea: {str(e)}")
             return {
                 "status": "error",
                 "error": str(e),
@@ -701,6 +434,7 @@ class ProjectWorkflow(Workflow):
             }
             
         except Exception as e:
+            logging.error(f"Error al preparar el despliegue: {str(e)}")
             return {
                 "status": "error",
                 "error": str(e),

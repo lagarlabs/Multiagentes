@@ -7,9 +7,8 @@ import os
 import asyncio
 from pathlib import Path
 from loguru import logger
-from dotenv import load_dotenv
-from datetime import datetime
 import json
+from datetime import datetime
 from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
@@ -17,26 +16,16 @@ from rich.table import Table
 from rich.prompt import Confirm
 
 from workflows.project_workflow import ProjectWorkflow, ProjectPlan, ProjectTask
+from utils.config_manager import ConfigManager
 
-# Cargar variables de entorno
-load_dotenv()
-
-# Verificar variables de entorno críticas
-logger.info("Verificando variables de entorno...")
-logger.info(f"OPENAI_API_KEY presente: {bool(os.getenv('OPENAI_API_KEY'))}")
-logger.info(f"EXA_API_KEY presente: {bool(os.getenv('EXA_API_KEY'))}")
-logger.info(f"DEFAULT_MODEL: {os.getenv('DEFAULT_MODEL')}")
-logger.info(f"TEMPERATURE: {os.getenv('TEMPERATURE')}")
-logger.info(f"GITHUB_TOKEN presente: {bool(os.getenv('GITHUB_TOKEN'))}")
-
-if not os.getenv('GITHUB_TOKEN'):
-    logger.error("GITHUB_TOKEN no encontrado en variables de entorno")
+# Configurar gestor de configuración
+config = ConfigManager()
 
 # Configurar logging
 logger.add(
-    "logs/app.log",
+    config.get("log_file"),
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
-    level=os.getenv("LOG_LEVEL", "INFO"),
+    level=config.get("log_level"),
     retention="7 days"
 )
 

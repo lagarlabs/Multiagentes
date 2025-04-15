@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Union
 from dotenv import load_dotenv
-from utils.deepseek_client import DeepSeekClient
+from utils.gemini_client import GeminiClient
 from utils.openai_client import OpenAIClient
 from utils.ai_client_base import AIClientBase
 
@@ -20,7 +20,7 @@ class AIManager:
     
     def __init__(self):
         """Inicializa el gestor de IA."""
-        self.primary_client = DeepSeekClient(os.getenv("DEEPSEEK_API_KEY"), model="deepseek-chat")
+        self.primary_client = GeminiClient(os.getenv("GEMINI_API_KEY"), model="gemini-2.5-pro-exp-03-25")
         self.secondary_client = OpenAIClient(os.getenv("OPENAI_API_KEY"))
         self.active_client = self.primary_client
         self.backup_dir = Path("backups")
@@ -169,7 +169,7 @@ Configuración del sistema multi-agentes.
 """
 
 # API Keys
-DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 # Configuración de logging
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
@@ -180,10 +180,10 @@ MAX_RETRIES = int(os.getenv('MAX_RETRIES', '3'))
 TIMEOUT_SECONDS = int(os.getenv('TIMEOUT_SECONDS', '300'))
 
 # Configuración de agentes
-DEFAULT_MODEL = os.getenv('DEFAULT_MODEL', 'deepseek-chat')
+DEFAULT_MODEL = os.getenv('DEFAULT_MODEL', 'gemini-2.5-pro-exp-03-25')
 TEMPERATURE = float(os.getenv('TEMPERATURE', '0.7'))
 MAX_TOKENS = int(os.getenv('MAX_TOKENS', '2000'))
 
 # Validación de configuración
-if not DEEPSEEK_API_KEY:
-    raise ValueError("DEEPSEEK_API_KEY no está configurada en el archivo .env")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY no está configurada en el archivo .env")

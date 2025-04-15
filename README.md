@@ -35,8 +35,8 @@ La empresa virtual sigue un proceso de desarrollo estructurado en seis fases:
 ## Requisitos
 
 - Python 3.8+
-- OpenAI API Key
-- DeepSeek API Key
+- Google Gemini API Key
+- OpenAI API Key (como respaldo)
 - Dependencias listadas en `requirements.txt`
 
 ## Instalación
@@ -62,7 +62,7 @@ pip install -r requirements.txt
 4. Configurar variables de entorno:
 ```bash
 cp .env.example .env
-# Editar .env y agregar tus API keys para OpenAI y DeepSeek
+# Editar .env y agregar tus API keys para Gemini y OpenAI
 ```
 
 ## Uso
@@ -108,15 +108,14 @@ empresa_virtual/
 
 Las siguientes variables pueden ser configuradas en el archivo `.env`:
 
-- `OPENAI_API_KEY`: Tu API key de OpenAI
-- `DEEPSEEK_API_KEY`: Tu API key de DeepSeek
+- `GEMINI_API_KEY`: Tu API key de Google Gemini
+- `OPENAI_API_KEY`: Tu API key de OpenAI (respaldo)
 - `LOG_LEVEL`: Nivel de logging (default: INFO)
-- `DEFAULT_MODEL`: Modelo de OpenAI a usar (default: gpt-4-turbo)
-- `REASONING_MODEL`: Modelo de DeepSeek a usar (default: deepseek-chat)
+- `DEFAULT_MODEL`: Modelo de Gemini a usar (default: gemini-2.5-pro-exp-03-25)
 - `MAX_RETRIES`: Número máximo de reintentos (default: 3)
 - `TIMEOUT_SECONDS`: Tiempo máximo de espera (default: 300)
 - `TEMPERATURE`: Temperatura para la generación (default: 0.7)
-- `MAX_TOKENS`: Máximo de tokens por respuesta (default: 4000)
+- `MAX_TOKENS`: Máximo de tokens por respuesta (default: 2000)
 
 ## Contribuir
 

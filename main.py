@@ -1,6 +1,7 @@
 """
 Sistema Multi-Agentes para Desarrollo de Software.
-Este módulo implementa el sistema principal que coordina los agentes usando Agno.
+Este módulo implementa una empresa virtual con agentes especializados que colaboran
+para completar proyectos de software de forma autónoma.
 """
 
 import os
@@ -14,8 +15,13 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 from rich.table import Table
 from rich.prompt import Confirm
+from rich.progress import Progress, TextColumn, BarColumn, TimeElapsedColumn
 
-from workflows.project_workflow import ProjectWorkflow, ProjectPlan, ProjectTask
+from agents.coordinator_agent import CoordinatorAgent
+from agents.market_analysis_agent import MarketAnalysisAgent
+from agents.frontend_programmer_agent import FrontendProgrammerAgent
+from agents.backend_programmer_agent import BackendProgrammerAgent
+from agents.qa_agent import QAAgent
 from utils.config_manager import ConfigManager
 
 # Configurar gestor de configuración
@@ -32,77 +38,28 @@ logger.add(
 # Crear consola Rich para mejor output
 console = Console()
 
-class MultiAgentSystem:
-    """Sistema Multi-Agentes para desarrollo de software usando Agno"""
+class MultiAgentCompany:
+    """Sistema Multi-Agentes que funciona como una empresa de desarrollo de software"""
     
     def __init__(self):
-        """Inicializa el sistema multi-agentes"""
+        """Inicializa la empresa de agentes"""
         self.project_dir = Path.cwd()
         
         # Crear directorios necesarios
-        for dir_name in ["logs", "output", "projects"]:
+        for dir_name in ["logs", "output", "projects", "docs"]:
             (self.project_dir / dir_name).mkdir(exist_ok=True)
         
-        # Inicializar workflow con manejo de errores
+        # Inicializar agentes con manejo de errores
         try:
-            self.workflow = ProjectWorkflow()
-            logger.info("Sistema Multi-Agentes inicializado con Agno")
+            self.coordinator = CoordinatorAgent(self.project_dir)
+            self.market_analyst = MarketAnalysisAgent(self.project_dir)
+            self.backend_developer = BackendProgrammerAgent(self.project_dir)
+            self.frontend_developer = FrontendProgrammerAgent(self.project_dir)
+            self.tester = QAAgent(self.project_dir)
+            logger.info("Sistema Multi-Agentes inicializado")
         except Exception as e:
-            logger.error(f"Error al inicializar workflow: {e}")
+            logger.error(f"Error al inicializar agentes: {e}")
             raise SystemExit("Error al inicializar el sistema. Por favor, verifica la configuración.")
-
-    def _display_plan(self, plan: dict):
-        """Muestra el plan en un formato legible"""
-        # Título y descripción
-        console.print(f"\n[bold blue]# {plan['title']}[/bold blue]")
-        console.print(f"\n{plan['description']}\n")
-        
-        # Tecnologías
-        tech_table = Table(title="Tecnologías", show_header=False)
-        tech_table.add_column("Tech", style="green")
-        for tech in plan['technologies']:
-            tech_table.add_row(tech)
-        console.print(tech_table)
-        
-        # Requisitos
-        req_table = Table(title="Requisitos", show_header=False)
-        req_table.add_column("Req", style="yellow")
-        for req in plan['requirements']:
-            req_table.add_row(req)
-        console.print(req_table)
-        
-        # Tareas
-        task_table = Table(title="Tareas del Proyecto")
-        task_table.add_column("ID", style="cyan")
-        task_table.add_column("Título", style="blue")
-        task_table.add_column("Horas", justify="right", style="green")
-        task_table.add_column("Dependencias", style="yellow")
-        task_table.add_column("Estado", style="magenta")
-        
-        for task in plan['tasks']:
-            task_table.add_row(
-                task['id'],
-                task['title'],
-                str(task['estimated_hours']),
-                ", ".join(task['dependencies']) if task['dependencies'] else "-",
-                task['status']
-            )
-        console.print(task_table)
-        
-        # Tiempo total
-        console.print(f"\n[bold green]Tiempo Total Estimado:[/bold green] {plan['total_estimated_hours']} horas")
-        console.print(f"[bold blue]Fecha de Inicio:[/bold blue] {plan['start_date']}\n")
-        
-        # Arquitectura si está disponible
-        if plan.get('architecture'):
-            console.print("\n[bold blue]Arquitectura del Sistema:[/bold blue]")
-            console.print(Markdown(json.dumps(plan['architecture'], indent=2)))
-        
-        # Consideraciones de seguridad si están disponibles
-        if plan.get('security_considerations'):
-            console.print("\n[bold red]Consideraciones de Seguridad:[/bold red]")
-            for consideration in plan['security_considerations']:
-                console.print(f"• {consideration}")
 
     async def process_request(self, request: str) -> dict:
         """
@@ -117,169 +74,180 @@ class MultiAgentSystem:
         try:
             logger.info(f"Procesando solicitud: {request}")
             
-            # Crear plan inicial
-            console.print("\n[bold blue]Analizando solicitud y creando plan...[/bold blue]")
+            # Mostrar mensaje de procesamiento
+            console.print("\n[bold blue]Iniciando desarrollo del proyecto...[/bold blue]")
             
-            try:
-                plan_result = await self.workflow.create_project_plan(request)
-                logger.info("Plan creado exitosamente")
-                logger.debug(f"Plan result: {json.dumps(plan_result, indent=2)}")
-            except Exception as e:
-                logger.error(f"Error al crear plan: {str(e)}")
-                raise Exception(f"Error al crear plan: {str(e)}")
-            
-            if plan_result.get("status") != "success":
-                error_msg = plan_result.get("error", "Error desconocido")
-                logger.error(f"Error en el resultado del plan: {error_msg}")
-                raise Exception(f"Error al crear plan: {error_msg}")
-            
-            if not isinstance(plan_result.get("plan"), dict):
-                logger.error("El plan no es un diccionario válido")
-                raise Exception("El plan generado no tiene el formato correcto")
-            
-            # Mostrar plan al usuario
-            console.print("\n[bold green]Plan del Proyecto:[/bold green]")
-            self._display_plan(plan_result["plan"])
-            
-            # Mostrar análisis y recomendaciones
-            console.print("\n[bold blue]Análisis Técnico:[/bold blue]")
-            console.print(Markdown(plan_result.get("research", "No hay análisis disponible")))
-            
-            console.print("\n[bold blue]Diseño Arquitectónico:[/bold blue]")
-            console.print(Markdown(plan_result.get("architecture", "No hay diseño disponible")))
-            
-            console.print("\n[bold red]Análisis de Seguridad:[/bold red]")
-            console.print(Markdown(str(plan_result.get("security", "No hay análisis de seguridad disponible"))))
-            
-            # Preguntar si desea proceder con la implementación
-            if Confirm.ask("\n¿Deseas proceder con la implementación del proyecto?"):
-                # Crear objeto ProjectPlan desde el diccionario
-                plan_dict = plan_result["plan"]
+            # Usar un indicador de progreso para mostrar el avance
+            with Progress(
+                TextColumn("[bold blue]{task.description}"),
+                BarColumn(),
+                TimeElapsedColumn()
+            ) as progress:
+                task = progress.add_task("[bold green]Desarrollando proyecto...", total=100)
                 
-                # Asegurarse de que las fechas estén en el formato correcto
-                if isinstance(plan_dict.get("start_date"), str):
-                    plan_dict["start_date"] = datetime.fromisoformat(plan_dict["start_date"].replace("Z", "+00:00"))
-                if isinstance(plan_dict.get("created_at"), str):
-                    plan_dict["created_at"] = datetime.fromisoformat(plan_dict["created_at"].replace("Z", "+00:00"))
-                if isinstance(plan_dict.get("updated_at"), str):
-                    plan_dict["updated_at"] = datetime.fromisoformat(plan_dict["updated_at"].replace("Z", "+00:00"))
+                # El coordinador maneja todo el proceso de desarrollo
+                result = await self.coordinator.process_request(request)
                 
-                # Crear objetos de tareas
-                tasks = []
-                for task_dict in plan_dict.get("tasks", []):
-                    task = ProjectTask(**task_dict)
-                    tasks.append(task)
+                # Simulación de progreso
+                while not progress.finished:
+                    if result["status"] == "error":
+                        progress.update(task, completed=100, description="[bold red]Error en el desarrollo")
+                        break
+                    progress.update(task, advance=25)
+                    await asyncio.sleep(0.1)
+                    
+            if result["status"] != "success":
+                console.print(f"\n[bold red]Error al procesar solicitud: {result.get('error', 'Error desconocido')}[/bold red]")
                 
-                # Reemplazar la lista de tareas en el diccionario
-                plan_dict["tasks"] = tasks
+                if "partial_results" in result and result["partial_results"]:
+                    console.print("\n[bold yellow]Resultados parciales:[/bold yellow]")
+                    console.print(Markdown(json.dumps(result["partial_results"], indent=2)))
                 
-                # Crear el plan completo
-                plan = ProjectPlan(**plan_dict)
-                
-                # Implementar cada tarea
-                console.print("\n[bold blue]Implementando tareas del proyecto...[/bold blue]")
-                
-                for task in plan.tasks:
-                    console.print(f"\n[bold cyan]Implementando tarea: {task.title}[/bold cyan]")
-                    
-                    implementation_result = await self.workflow.implement_task(task)
-                    
-                    if implementation_result["status"] != "success":
-                        console.print(f"[bold red]Error al implementar tarea: {implementation_result.get('error', 'Error desconocido')}[/bold red]")
-                        continue
-                    
-                    # Mostrar resultados de la implementación
-                    console.print("\n[bold green]Código Implementado:[/bold green]")
-                    console.print(Markdown(f"```python\n{implementation_result['implementation']}\n```"))
-                    
-                    console.print("\n[bold yellow]Revisión de Calidad:[/bold yellow]")
-                    console.print(Markdown(implementation_result["qa_review"]))
-                    
-                    console.print("\n[bold red]Revisión de Seguridad:[/bold red]")
-                    console.print(Markdown(implementation_result["security_review"]))
-                    
-                    # Actualizar tarea en el plan
-                    task_dict = implementation_result["task"]
-                    for i, t in enumerate(plan.tasks):
-                        if t.id == task.id:
-                            plan.tasks[i] = ProjectTask(**task_dict)
-                            break
-                    
-                    # Ejecutar acciones para esta tarea
-                    console.print("\n[bold blue]Ejecutando acciones para esta tarea...[/bold blue]")
-                    if hasattr(task, 'files_created') and task.files_created:
-                        await self.workflow.process_agent_actions(task.files_created, os.getcwd())
-                    if hasattr(task, 'commands_executed') and task.commands_executed:
-                        await self.workflow.process_agent_actions(task.commands_executed, os.getcwd())
-                
-                # Preguntar si desea desplegar el proyecto
-                if Confirm.ask("\n¿Deseas desplegar el proyecto?"):
-                    console.print("\n[bold blue]Preparando despliegue...[/bold blue]")
-                    
-                    deployment_result = await self.workflow.deploy_project(plan)
-                    
-                    if deployment_result["status"] != "success":
-                        console.print(f"[bold red]Error al preparar despliegue: {deployment_result['error']}[/bold red]")
-                    else:
-                        console.print("\n[bold green]Plan de Despliegue:[/bold green]")
-                        console.print(Markdown(deployment_result["deployment_plan"]))
-                        
-                        console.print("\n[bold yellow]Verificación de Calidad:[/bold yellow]")
-                        console.print(Markdown(deployment_result["qa_verification"]))
-                        
-                        console.print("\n[bold red]Verificación de Seguridad:[/bold red]")
-                        console.print(Markdown(deployment_result["security_verification"]))
+                return result
             
-            return plan_result
+            # Mostrar resultado
+            console.print("\n[bold green]¡Proyecto completado con éxito![/bold green]")
+            
+            # Mostrar informe final
+            self._display_project_report(result["project"])
+            
+            # Guardar resultados
+            output_dir = self.project_dir / "projects" / datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            with open(output_dir / "project.json", "w", encoding="utf-8") as f:
+                json.dump(result["project"], f, indent=2, ensure_ascii=False)
+            
+            console.print(f"\n[bold green]Resultados guardados en: {output_dir}[/bold green]")
+            
+            return result
             
         except Exception as e:
             logger.error(f"Error al procesar solicitud: {e}")
+            console.print(f"\n[bold red]Error al procesar solicitud: {e}[/bold red]")
             return {"status": "error", "error": str(e)}
+
+    def _display_project_report(self, project: dict):
+        """Muestra un informe detallado del proyecto"""
+        
+        # Título y descripción
+        console.print(f"\n[bold blue]# {project.get('project', {}).get('name', 'Proyecto')}[/bold blue]")
+        console.print(f"\n{project.get('project', {}).get('description', 'Sin descripción')}\n")
+        
+        # Mostrar componentes de arquitectura
+        if "architecture" in project.get("project", {}):
+            console.print("\n[bold blue]Arquitectura:[/bold blue]")
+            architecture = project["project"]["architecture"]
+            
+            if isinstance(architecture, dict):
+                # Componentes
+                if "components" in architecture and architecture["components"]:
+                    comp_table = Table(title="Componentes", show_header=True)
+                    comp_table.add_column("Componente", style="green")
+                    comp_table.add_column("Descripción", style="blue")
+                    
+                    for component in architecture["components"]:
+                        if isinstance(component, dict) and "name" in component and "description" in component:
+                            comp_table.add_row(component["name"], component["description"])
+                        elif isinstance(component, str):
+                            comp_table.add_row(component, "")
+                    
+                    console.print(comp_table)
+                
+                # Interacciones
+                if "interactions" in architecture and architecture["interactions"]:
+                    console.print("\n[bold yellow]Interacciones entre componentes:[/bold yellow]")
+                    for interaction in architecture["interactions"]:
+                        console.print(f"• {interaction}")
+        
+        # Tareas completadas
+        if "tasks" in project.get("project", {}):
+            task_table = Table(title="Tareas del Proyecto")
+            task_table.add_column("ID", style="cyan")
+            task_table.add_column("Descripción", style="blue")
+            task_table.add_column("Asignado a", style="green")
+            task_table.add_column("Estado", style="magenta")
+            
+            for task in project["project"]["tasks"]:
+                task_table.add_row(
+                    task.get("id", ""),
+                    task.get("description", ""),
+                    task.get("assigned_to", ""),
+                    task.get("status", "")
+                )
+            
+            console.print(task_table)
+        
+        # Análisis de mercado
+        if "market_verification" in project:
+            console.print("\n[bold green]Análisis de Mercado:[/bold green]")
+            
+            market = project["market_verification"]
+            
+            if "competitive_advantage" in market:
+                console.print(f"\n[bold]Ventaja competitiva:[/bold] {market['competitive_advantage'].get('score', 'N/A')}/10")
+                console.print("\n[bold]Fortalezas:[/bold]")
+                for strength in market["competitive_advantage"].get("strengths", []):
+                    console.print(f"• {strength}")
+            
+            if "recommendations" in market:
+                console.print("\n[bold]Recomendaciones clave:[/bold]")
+                for rec in market.get("recommendations", []):
+                    if isinstance(rec, dict):
+                        console.print(f"• [{rec.get('priority', 'media')}] {rec.get('description', '')}")
+                    elif isinstance(rec, str):
+                        console.print(f"• {rec}")
+        
+        # Informe final
+        if "final_report" in project:
+            console.print("\n[bold blue]Informe Final:[/bold blue]")
+            
+            if isinstance(project["final_report"], dict) and "summary" in project["final_report"]:
+                console.print(Markdown(project["final_report"]["summary"]))
+            else:
+                console.print(Markdown(json.dumps(project["final_report"], indent=2)))
 
 async def main():
     """Función principal del sistema"""
     try:
         # Inicializar sistema
-        system = MultiAgentSystem()
-        logger.info("Sistema iniciado")
+        system = MultiAgentCompany()
+        logger.info("Sistema de empresa multi-agentes iniciado")
         
         # Mostrar mensaje de bienvenida
         welcome_message = """
-        Sistema Multi-Agentes para Desarrollo de Software
+        # Empresa Virtual de Desarrollo de Software
+
+        ¡Bienvenido! Somos una empresa compuesta por agentes de IA especializados 
+        trabajando en conjunto para desarrollar tu proyecto de software.
         
-        ¡Bienvenido! Soy tu asistente de IA para desarrollo de software.
+        Nuestro equipo incluye:
+        • Coordinador de Proyecto
+        • Analista de Mercado
+        • Investigador Técnico
+        • Desarrollador Backend
+        • Desarrollador Frontend
+        • Tester y Analista de Calidad
         
-        Nuestro equipo de agentes especializados incluye:
-        • Investigador y Analista Técnico
-        • Arquitecto de Software
-        • Desarrollador Senior
-        • Experto en Control de Calidad
-        • Ingeniero DevOps
-        • Experto en Seguridad
-        
-        Juntos podemos planificar, desarrollar y desplegar cualquier tipo de proyecto.
-        Por favor, describe tu proyecto o idea en detalle.
+        Trabajamos de forma coordinada hasta completar tu proyecto.
+        Por favor, describe tu proyecto en detalle y nuestro equipo comenzará a trabajar inmediatamente.
         """
-        console.print(Panel(welcome_message, title="👋 ¡Hola!", border_style="blue"))
+        console.print(Panel(Markdown(welcome_message), title="🏢 Empresa Virtual", border_style="blue"))
         
         while True:
             # Obtener solicitud del usuario
-            request = console.input("\n[bold]Tu proyecto[/bold]: ")
+            request = console.input("\n[bold]Describe tu proyecto[/bold]: ")
             
             if request.lower() in ["salir", "exit", "quit"]:
-                console.print("\n[bold green]¡Gracias por usar el sistema! ¡Hasta pronto![/bold green]")
+                console.print("\n[bold green]¡Gracias por usar nuestros servicios! ¡Hasta pronto![/bold green]")
                 break
             
-            # Procesar solicitud
+            # Procesar solicitud (la empresa trabaja de forma autónoma)
             result = await system.process_request(request)
             
-            if result["status"] == "error":
-                console.print(f"\n[bold red]Error en el sistema: {result['error']}[/bold red]")
-                continue
-            
             # Preguntar si desea continuar
-            if not Confirm.ask("\n¿Deseas realizar otro proyecto?"):
-                console.print("\n[bold green]¡Gracias por usar el sistema! ¡Hasta pronto![/bold green]")
+            if not Confirm.ask("\n¿Deseas iniciar otro proyecto?"):
+                console.print("\n[bold green]¡Gracias por usar nuestros servicios! ¡Hasta pronto![/bold green]")
                 break
                 
     except Exception as e:

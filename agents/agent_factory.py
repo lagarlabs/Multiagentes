@@ -17,6 +17,10 @@ from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.firecrawl import FirecrawlTools
 
 from utils.config_manager import ConfigManager
+from .market_analysis_agent import MarketAnalysisAgent
+from .frontend_programmer_agent import FrontendProgrammerAgent
+from .backend_programmer_agent import BackendProgrammerAgent
+from .qa_agent import QAAgent
 
 class AgentFactory:
     """Fábrica para crear agentes especializados"""
@@ -325,3 +329,39 @@ class AgentFactory:
             """),
             markdown=True
         )
+        
+    def create_market_analysis_agent(self) -> MarketAnalysisAgent:
+        """
+        Crea un agente de análisis de mercado
+        
+        Returns:
+            Agente especializado en análisis de mercado
+        """
+        return MarketAnalysisAgent(self.config.get("project_dir"))
+        
+    def create_frontend_programmer_agent(self) -> FrontendProgrammerAgent:
+        """
+        Crea un agente programador frontend
+        
+        Returns:
+            Agente especializado en desarrollo frontend
+        """
+        return FrontendProgrammerAgent(self.config.get("project_dir"))
+        
+    def create_backend_programmer_agent(self) -> BackendProgrammerAgent:
+        """
+        Crea un agente programador backend
+        
+        Returns:
+            Agente especializado en desarrollo backend
+        """
+        return BackendProgrammerAgent(self.config.get("project_dir"))
+        
+    def create_testing_agent(self) -> QAAgent:
+        """
+        Crea un agente de testing (alias para QA)
+        
+        Returns:
+            Agente especializado en testing
+        """
+        return QAAgent(self.config.get("project_dir"))
